@@ -1485,7 +1485,9 @@ class TuckerConvBlock(tf.keras.layers.Layer):
     x = self._conv2(x)
     x = self._norm2(x)
 
-    if self._use_residual:
+    if (self._use_residual and
+        self._in_filters == self._out_filters and
+        self._strides == 1):
       if self._stochastic_depth:
         x = self._stochastic_depth(x, training=training)
       x = self._add([x, shortcut])
