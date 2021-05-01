@@ -20,7 +20,6 @@ import tensorflow as tf
 
 from official.modeling import tf_utils
 
-
 # Type annotations.
 States = Dict[str, tf.Tensor]
 Activation = Union[str, Callable]
@@ -28,7 +27,8 @@ Activation = Union[str, Callable]
 
 def make_divisible(value: float,
                    divisor: int,
-                   min_value: Optional[float] = None
+                   min_value: Optional[float] = None,
+                   round_down_protect: bool = True,
                    ) -> int:
   """This is to ensure that all layers have channels that are divisible by 8.
 
@@ -36,6 +36,8 @@ def make_divisible(value: float,
     value: A `float` of original value.
     divisor: An `int` of the divisor that need to be checked upon.
     min_value: A `float` of  minimum value threshold.
+    round_down_protect: A `bool` of whether round down more than 10% will be
+      allowed.
 
   Returns:
     The adjusted value in `int` that is divisible against divisor.
@@ -44,7 +46,7 @@ def make_divisible(value: float,
     min_value = divisor
   new_value = max(min_value, int(value + divisor / 2) // divisor * divisor)
   # Make sure that round down does not go down by more than 10%.
-  if new_value < 0.9 * value:
+  if round_down_protect and new_value < 0.9 * value:
     new_value += divisor
   return int(new_value)
 
@@ -53,6 +55,7 @@ def round_filters(filters: int,
                   multiplier: float,
                   divisor: int = 8,
                   min_depth: Optional[int] = None,
+                  round_down_protect: bool = True,
                   skip: bool = False):
   """Rounds number of filters based on width multiplier."""
   orig_f = filters
@@ -61,7 +64,8 @@ def round_filters(filters: int,
 
   new_filters = make_divisible(value=filters * multiplier,
                                divisor=divisor,
-                               min_value=min_depth)
+                               min_value=min_depth,
+                               round_down_protect=round_down_protect)
 
   logging.info('round_filter input=%s output=%s', orig_f, new_filters)
   return int(new_filters)
@@ -295,8 +299,8 @@ def pyramid_feature_fusion(inputs, target_level):
     else:
       feat = pyramid_feats[l]
       target_size = list(feat.shape[1:3])
-      target_size[0] *= 2**(l - target_level)
-      target_size[1] *= 2**(l - target_level)
+      target_size[0] *= 2 ** (l - target_level)
+      target_size[1] *= 2 ** (l - target_level)
       # Casts feat to float32 so the resize op can be run on TPU.
       feat = tf.cast(feat, tf.float32)
       feat = tf.image.resize(
