@@ -38,16 +38,22 @@ Architecture: https://arxiv.org/abs/1704.04861.
 Mobile Accelerators" Yunyang Xiong, Hanxiao Liu, Suyog Gupta, Berkin Akin, 
 Gabriel Bender, Yongzhe Wang, Pieter-Jan Kindermans, Mingxing Tan, Vikas Singh, 
 Bo Chen
+
+Note that `round_down_protection` flag should be set to false for scaling
+of the network.
 """
 
 MD_CPU_BLOCK_SPECS = {
     'spec_name': 'MobileDetCPU',
+    # set expand_ratio to 1. for inverted_bottleneck_no_expansion
+    # se_ratio is set to 0.25 for all invertedbottleneck layers
+    # activation is set to 'hard_swish' for all applicable layers
     'block_spec_schema': ['block_fn', 'kernel_size', 'strides', 'filters',
                           'activation', 'se_ratio', 'expand_ratio',
                           'use_residual', 'is_output'],
     'block_specs': [
         ('convbn', 3, 2, 16, 'hard_swish', None, None, None, False),
-        # _inverted_bottleneck_no_expansion
+        # inverted_bottleneck_no_expansion
         ('invertedbottleneck', 3, 1, 8, 'hard_swish', 0.25, 1., False, True),
         ('invertedbottleneck', 3, 2, 16, 'hard_swish', 0.25, 4., False, True),
         ('invertedbottleneck', 3, 2, 32, 'hard_swish', 0.25, 8., False, False),
@@ -72,10 +78,63 @@ MD_CPU_BLOCK_SPECS = {
 
 MD_DSP_BLOCK_SPECS = {
     'spec_name': 'MobileDetDSP',
+    # set expand_ratio to 1. for inverted_bottleneck_no_expansion
+    # set use_depthwise to False for fused_conv
+    # se_ratio is set to 0.25 for all invertedbottleneck layers
+    # activation is set to 'relu6' for all applicable layers
     'block_spec_schema': ['block_fn', 'kernel_size', 'strides', 'filters',
                           'activation', 'se_ratio', 'expand_ratio',
-                          'use_normalization', 'use_bias', 'is_output'],
-    'block_specs': []
+                          'input_compression_ratio', 'output_compression_ratio',
+                          'use_depthwise', 'use_residual', 'is_output'],
+    'block_specs': [
+        ('convbn', 3, 2, 32, 'relu6',
+         None, None, None, None, None, None, False),
+        # inverted_bottleneck_no_expansion
+        ('invertedbottleneck', 3, 1, 24, 'relu6',
+         0.25, 1., None, None, True, False, True),
+        ('invertedbottleneck', 3, 2, 32, 'relu6',
+         0.25, 4., None, None, False, False, False),  # fused_conv
+        ('invertedbottleneck', 3, 1, 32, 'relu6',
+         0.25, 4., None, None, False, True, False),  # fused_conv
+        ('invertedbottleneck', 3, 1, 32, 'relu6',
+         0.25, 4., None, None, True, True, False),
+        ('tucker', 3, 1, 32, 'relu6',
+         None, None, 0.25, 0.75, None, True, True),
+        ('invertedbottleneck', 3, 2, 64, 'relu6',
+         0.25, 8., None, None, False, False, False),  # fused_conv
+        ('invertedbottleneck', 3, 1, 64, 'relu6',
+         0.25, 4., None, None, True, True, False),
+        ('invertedbottleneck', 3, 1, 64, 'relu6',
+         0.25, 4., None, None, False, True, False),  # fused_conv
+        ('invertedbottleneck', 3, 1, 64, 'relu6',
+         0.25, 4., None, None, False, True, True),  # fused_conv
+        ('invertedbottleneck', 3, 2, 120, 'relu6',
+         0.25, 8., None, None, False, False, False),  # fused_conv
+        ('invertedbottleneck', 3, 1, 120, 'relu6',
+         0.25, 4., None, None, True, True, False),
+        ('invertedbottleneck', 3, 1, 120, 'relu6',
+         0.25, 8, None, None, True, True, False),
+        ('invertedbottleneck', 3, 1, 120, 'relu6',
+         0.25, 8., None, None, True, True, False),
+        ('invertedbottleneck', 3, 1, 144, 'relu6',
+         0.25, 8., None, None, False, False, False),  # fused_conv
+        ('invertedbottleneck', 3, 1, 144, 'relu6',
+         0.25, 8., None, None, True, True, False),
+        ('invertedbottleneck', 3, 1, 144, 'relu6',
+         0.25, 8, None, None, True, True, False),
+        ('invertedbottleneck', 3, 1, 144, 'relu6',
+         0.25, 8., None, None, True, True, True),
+        ('invertedbottleneck', 3, 2, 160, 'relu6',
+         0.25, 4, None, None, True, False, False),
+        ('invertedbottleneck', 3, 1, 160, 'relu6',
+         0.25, 4, None, None, True, True, False),
+        ('invertedbottleneck', 3, 1, 160, 'relu6',
+         0.25, 4., None, None, False, False, False),  # fused_conv
+        ('tucker', 3, 1, 160, 'relu6',
+         None, None, 0.75, 0.75, None, True, True),
+        ('invertedbottleneck', 3, 1, 240, 'relu6',
+         0.25, 8, None, None, True, False, True),
+    ]
 }
 
 MD_EdgeTPU_BLOCK_SPECS = {
