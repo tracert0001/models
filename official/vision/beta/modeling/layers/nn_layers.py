@@ -119,6 +119,7 @@ class SqueezeExcitation(tf.keras.layers.Layer):
                bias_regularizer=None,
                activation='relu',
                gating_activation='sigmoid',
+               round_down_protect=True,
                **kwargs):
     """Initializes a squeeze and excitation layer.
 
@@ -139,6 +140,8 @@ class SqueezeExcitation(tf.keras.layers.Layer):
       activation: A `str` name of the activation function.
       gating_activation: A `str` name of the activation function for final
         gating function.
+      round_down_protect: A `bool` of whether round down more than 10% will be
+        allowed.
       **kwargs: Additional keyword arguments to be passed.
     """
     super(SqueezeExcitation, self).__init__(**kwargs)
@@ -147,6 +150,7 @@ class SqueezeExcitation(tf.keras.layers.Layer):
     self._out_filters = out_filters
     self._se_ratio = se_ratio
     self._divisible_by = divisible_by
+    self._round_down_protect = round_down_protect
     self._use_3d_input = use_3d_input
     self._activation = activation
     self._gating_activation = gating_activation
@@ -205,6 +209,7 @@ class SqueezeExcitation(tf.keras.layers.Layer):
         'bias_regularizer': self._bias_regularizer,
         'activation': self._activation,
         'gating_activation': self._gating_activation,
+        'round_down_protect': self._round_down_protect,
     }
     base_config = super(SqueezeExcitation, self).get_config()
     return dict(list(base_config.items()) + list(config.items()))

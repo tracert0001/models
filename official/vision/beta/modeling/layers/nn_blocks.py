@@ -485,6 +485,7 @@ class InvertedBottleneckBlock(tf.keras.layers.Layer):
                activation='relu',
                se_inner_activation='relu',
                se_gating_activation='sigmoid',
+               se_round_down_protect=True,
                expand_se_in_filters=False,
                depthwise_activation=None,
                use_sync_bn=False,
@@ -520,6 +521,8 @@ class InvertedBottleneckBlock(tf.keras.layers.Layer):
       se_inner_activation: A `str` name of squeeze-excitation inner activation.
       se_gating_activation: A `str` name of squeeze-excitation gating
         activation.
+      se_round_down_protect: A `bool` of whether round down more than 10%
+        will be allowed in SE layer.
       expand_se_in_filters: A `bool` of whether or not to expand in_filter in
         squeeze and excitation layer.
       depthwise_activation: A `str` name of the activation function for
@@ -560,6 +563,7 @@ class InvertedBottleneckBlock(tf.keras.layers.Layer):
     self._activation = activation
     self._se_inner_activation = se_inner_activation
     self._se_gating_activation = se_gating_activation
+    self._se_round_down_protect = se_round_down_protect
     self._depthwise_activation = depthwise_activation
     self._kernel_initializer = kernel_initializer
     self._norm_momentum = norm_momentum
@@ -640,6 +644,7 @@ class InvertedBottleneckBlock(tf.keras.layers.Layer):
           out_filters=expand_filters,
           se_ratio=self._se_ratio,
           divisible_by=self._divisible_by,
+          round_down_protect=self._se_round_down_protect,
           kernel_initializer=self._kernel_initializer,
           kernel_regularizer=self._kernel_regularizer,
           bias_regularizer=self._bias_regularizer,
@@ -688,6 +693,7 @@ class InvertedBottleneckBlock(tf.keras.layers.Layer):
         'activation': self._activation,
         'se_inner_activation': self._se_inner_activation,
         'se_gating_activation': self._se_gating_activation,
+        'se_round_down_protect': self._se_round_down_protect,
         'expand_se_in_filters': self._expand_se_in_filters,
         'depthwise_activation': self._depthwise_activation,
         'dilation_rate': self._dilation_rate,
