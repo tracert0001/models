@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Contains definitions of MobileDet Networks."""
+"""Definitions of MobileDet Networks."""
 
 from typing import Optional, Dict, Any, Tuple
 
@@ -20,7 +20,6 @@ from typing import Optional, Dict, Any, Tuple
 import dataclasses
 import tensorflow as tf
 from official.modeling import hyperparams
-from official.modeling import tf_utils
 from official.vision.beta.modeling.backbones import factory
 from official.vision.beta.modeling.layers import nn_blocks
 from official.vision.beta.modeling.layers import nn_layers
@@ -131,7 +130,7 @@ MD_DSP_BLOCK_SPECS = {
         ('invertedbottleneck', 3, 1, 160, 'relu6',
          0.25, 4., None, None, False, False, False),  # fused_conv
         ('tucker', 3, 1, 160, 'relu6',
-         None, None, 0.75, 0.75, None, True, True),
+         None, None, 0.75, 0.75, None, True, False),
         ('invertedbottleneck', 3, 1, 240, 'relu6',
          0.25, 8, None, None, True, False, True),
     ]
@@ -363,7 +362,6 @@ class MobileDet(tf.keras.Model):
       # The followings should be kept the same most of the times.
       min_depth: int = 8,
       divisible_by: int = 8,
-      stochastic_depth_drop_rate: float = 0.0,
       regularize_depthwise: bool = False,
       use_sync_bn: bool = False,
       **kwargs):
@@ -390,7 +388,6 @@ class MobileDet(tf.keras.Model):
         constraint when filter_size_scale >= 1.
       divisible_by: An `int` that ensures all inner dimensions are divisible by
         this number.
-      stochastic_depth_drop_rate: A `float` of drop rate for drop connect layer.
       regularize_depthwise: If Ture, apply regularization on depthwise.
       use_sync_bn: If True, use synchronized batch normalization.
       **kwargs: Additional keyword arguments to be passed.
@@ -407,7 +404,6 @@ class MobileDet(tf.keras.Model):
     self._filter_size_scale = filter_size_scale
     self._min_depth = min_depth
     self._divisible_by = divisible_by
-    self._stochastic_depth_drop_rate = stochastic_depth_drop_rate
     self._regularize_depthwise = regularize_depthwise
     self._kernel_initializer = kernel_initializer
     self._kernel_regularizer = kernel_regularizer
@@ -451,19 +447,9 @@ class MobileDet(tf.keras.Model):
     if len(input_shape) != 4:
       raise ValueError('Expected rank 4 input, was: %d' % len(input_shape))
 
-    # The current_stride variable keeps track of the output stride of the
-    # activations, i.e., the running product of convolution strides up to the
-    # current network layer. This allows us to invoke atrous convolution
-    # whenever applying the next convolution would result in the activations
-    # having output stride larger than the target output_stride.
-    current_stride = 1
-
-    # The atrous convolution rate parameter.
-    rate = 1
-
     net = inputs
     endpoints = {}
-    endpoint_level = 2
+    endpoint_level = 1
     for i, block_def in enumerate(self._decoded_specs):
       block_name = 'block_group_{}_{}'.format(block_def.block_fn, i)
 
@@ -497,6 +483,7 @@ class MobileDet(tf.keras.Model):
             se_inner_activation=block_def.activation,
             se_gating_activation='sigmoid',
             se_round_down_protect=False,
+            expand_se_in_filters=True,
             activation=block_def.activation,
             use_depthwise=block_def.use_depthwise,
             use_residual=block_def.use_residual,
@@ -507,7 +494,6 @@ class MobileDet(tf.keras.Model):
             use_sync_bn=self._use_sync_bn,
             norm_momentum=self._norm_momentum,
             norm_epsilon=self._norm_epsilon,
-            stochastic_depth_drop_rate=self._stochastic_depth_drop_rate,
             divisible_by=self._get_divisible_by()
         )(net)
 
@@ -529,7 +515,6 @@ class MobileDet(tf.keras.Model):
             use_sync_bn=self._use_sync_bn,
             norm_momentum=self._norm_momentum,
             norm_epsilon=self._norm_epsilon,
-            stochastic_depth_drop_rate=self._stochastic_depth_drop_rate,
             divisible_by=self._get_divisible_by()
         )(net)
 
@@ -551,7 +536,6 @@ class MobileDet(tf.keras.Model):
         'filter_size_scale': self._filter_size_scale,
         'min_depth': self._min_depth,
         'divisible_by': self._divisible_by,
-        'stochastic_depth_drop_rate': self._stochastic_depth_drop_rate,
         'regularize_depthwise': self._regularize_depthwise,
         'kernel_initializer': self._kernel_initializer,
         'kernel_regularizer': self._kernel_regularizer,
@@ -571,15 +555,17 @@ class MobileDet(tf.keras.Model):
     """A dict of {level: TensorShape} pairs for the model output."""
     return self._output_specs
 
+
 @factory.register_backbone_builder('mobiledet')
-def build_mobilenet(
+def build_mobiledet(
     input_specs: tf.keras.layers.InputSpec,
-    model_config: hyperparams.Config,
-    l2_regularizer: tf.keras.regularizers.Regularizer = None) -> tf.keras.Model:
+    backbone_config: hyperparams.Config,
+    norm_activation_config: hyperparams.Config,
+    l2_regularizer: Optional[tf.keras.regularizers.Regularizer] = None
+) -> tf.keras.Model:
   """Builds MobileDet backbone from a config."""
-  backbone_type = model_config.backbone.type
-  backbone_cfg = model_config.backbone.get()
-  norm_activation_config = model_config.norm_activation
+  backbone_type = backbone_config.type
+  backbone_cfg = backbone_config.get()
   assert backbone_type == 'mobiledet', (f'Inconsistent backbone type '
                                         f'{backbone_type}')
 
@@ -587,7 +573,6 @@ def build_mobilenet(
       model_id=backbone_cfg.model_id,
       filter_size_scale=backbone_cfg.filter_size_scale,
       input_specs=input_specs,
-      stochastic_depth_drop_rate=backbone_cfg.stochastic_depth_drop_rate,
       use_sync_bn=norm_activation_config.use_sync_bn,
       norm_momentum=norm_activation_config.norm_momentum,
       norm_epsilon=norm_activation_config.norm_epsilon,
