@@ -970,3 +970,43 @@ class Conv3D(tf.keras.layers.Conv3D, CausalConvMixin):
     """Computes the spatial output shape from the input shape."""
     shape = super(Conv3D, self)._spatial_output_shape(spatial_input_shape)
     return self._buffered_spatial_output_shape(shape)
+
+
+class FixedPadding(tf.keras.layers.Layer):
+  """Pads the input along the spatial dimensions independently of input size.
+  Pads the input such that if it was used in a convolution with 'VALID' padding,
+  the output would have the same dimensions as if the unpadded input was used
+  in a convolution with 'SAME' padding.
+  """
+
+  def __init__(self, kernel_size: Tuple[int, int], rate: int = 1, **kwargs):
+    """
+    Args:
+      kernel_size: A tuple of `int`, representing the height and width of the 2D
+        convolution window.
+      rate: An `int`, rate for atrous convolution.
+    """
+    super(FixedPadding, self).__init__(**kwargs)
+    self.kernel_size = kernel_size
+    self.rate = rate
+
+  def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
+    """
+    Args:
+      inputs: A tensor of size [batch, height_in, width_in, channels].
+    Returns:
+      A tensor of size [batch, height_out, width_out, channels] with the
+      input, either intact (if kernel_size == 1) or padded (if kernel_size > 1).
+    """
+    kernel_size = self.kernel_size
+    rate = self.rate
+    kernel_size_effective = [kernel_size[0] + (kernel_size[0] - 1) * (rate - 1),
+                             kernel_size[1] + (kernel_size[0] - 1) * (rate - 1)]
+    pad_total = [kernel_size_effective[0] - 1, kernel_size_effective[1] - 1]
+    pad_beg = [pad_total[0] // 2, pad_total[1] // 2]
+    pad_end = [pad_total[0] - pad_beg[0], pad_total[1] - pad_beg[1]]
+    padded_inputs = tf.pad(
+      tensor=inputs,
+      paddings=[[0, 0], [pad_beg[0], pad_end[0]], [pad_beg[1], pad_end[1]],
+                [0, 0]])
+    return padded_inputs
