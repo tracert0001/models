@@ -972,13 +972,14 @@ class Conv3D(tf.keras.layers.Conv3D, CausalConvMixin):
     return self._buffered_spatial_output_shape(shape)
 
 
+@tf.keras.utils.register_keras_serializable(package='Vision')
 class FixedPadding(tf.keras.layers.Layer):
   """Pads the input along the spatial dimensions independently of input size.
   Pads the input such that if it was used in a convolution with 'VALID' padding,
   the output would have the same dimensions as if the unpadded input was used
   in a convolution with 'SAME' padding.
   """
-
+  
   def __init__(self, kernel_size: Tuple[int, int], rate: int = 1, **kwargs):
     """
     Args:
@@ -987,9 +988,29 @@ class FixedPadding(tf.keras.layers.Layer):
       rate: An `int`, rate for atrous convolution.
     """
     super(FixedPadding, self).__init__(**kwargs)
-    self.kernel_size = kernel_size
-    self.rate = rate
-
+    self._kernel_size = kernel_size
+    self._rate = rate
+    
+    kernel_size_effective = [
+        self._kernel_size[0] + (self._kernel_size[0] - 1) * (self._rate - 1),
+        self._kernel_size[1] + (self._kernel_size[0] - 1) * (self._rate - 1)]
+    pad_total = [kernel_size_effective[0] - 1, kernel_size_effective[1] - 1]
+    pad_beg = [pad_total[0] // 2, pad_total[1] // 2]
+    pad_end = [pad_total[0] - pad_beg[0], pad_total[1] - pad_beg[1]]
+    
+    self._pad_layer = tf.keras.layers.ZeroPadding2D(
+        ((pad_beg[0], pad_end[0]), (pad_beg[1], pad_end[1]))
+    )
+  
+  def get_config(self):
+    """Returns a dictionary containing the config used for initialization."""
+    config = {
+        'kernel_size': self._kernel_size,
+        'rate': self._rate,
+    }
+    base_config = super(FixedPadding, self).get_config()
+    return dict(list(base_config.items()) + list(config.items()))
+  
   def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
     """
     Args:
@@ -998,15 +1019,5 @@ class FixedPadding(tf.keras.layers.Layer):
       A tensor of size [batch, height_out, width_out, channels] with the
       input, either intact (if kernel_size == 1) or padded (if kernel_size > 1).
     """
-    kernel_size = self.kernel_size
-    rate = self.rate
-    kernel_size_effective = [kernel_size[0] + (kernel_size[0] - 1) * (rate - 1),
-                             kernel_size[1] + (kernel_size[0] - 1) * (rate - 1)]
-    pad_total = [kernel_size_effective[0] - 1, kernel_size_effective[1] - 1]
-    pad_beg = [pad_total[0] // 2, pad_total[1] // 2]
-    pad_end = [pad_total[0] - pad_beg[0], pad_total[1] - pad_beg[1]]
-    padded_inputs = tf.pad(
-      tensor=inputs,
-      paddings=[[0, 0], [pad_beg[0], pad_end[0]], [pad_beg[1], pad_end[1]],
-                [0, 0]])
-    return padded_inputs
+    
+    return self._pad_layer(inputs)
