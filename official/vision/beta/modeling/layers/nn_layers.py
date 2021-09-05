@@ -970,11 +970,3 @@ class Conv3D(tf.keras.layers.Conv3D, CausalConvMixin):
     """Computes the spatial output shape from the input shape."""
     shape = super(Conv3D, self)._spatial_output_shape(spatial_input_shape)
     return self._buffered_spatial_output_shape(shape)
-
-
-@tf.keras.utils.register_keras_serializable(package='Vision')
-class IdentityLayer(tf.keras.layers.Layer):
-  """A layer which passes through the input as it is."""
-
-  def call(self, inputs):
-    return inputs
