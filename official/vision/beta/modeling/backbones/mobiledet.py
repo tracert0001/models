@@ -44,8 +44,9 @@ of the network.
 
 MD_CPU_BLOCK_SPECS = {
     'spec_name': 'MobileDetCPU',
-    # [expand_ratio] is set to 1. for inverted_bottleneck_no_expansion
-    # [se_ratio] is set to 0.25 for all invertedbottleneck layers
+    # [expand_ratio] is set to 1 and [use_residual] is set to false
+    # for inverted_bottleneck_no_expansion
+    # [se_ratio] is set to 0.25 for all inverted_bottleneck layers
     # [activation] is set to 'hard_swish' for all applicable layers
     'block_spec_schema': ['block_fn', 'kernel_size', 'strides', 'filters',
                           'activation', 'se_ratio', 'expand_ratio',
@@ -77,9 +78,10 @@ MD_CPU_BLOCK_SPECS = {
 
 MD_DSP_BLOCK_SPECS = {
     'spec_name': 'MobileDetDSP',
-    # [expand_ratio] is set to 1. for inverted_bottleneck_no_expansion
+    # [expand_ratio] is set to 1 and [use_residual] is set to false
+    # for inverted_bottleneck_no_expansion
     # [use_depthwise] is set to False for fused_conv
-    # [se_ratio] is set to 0.25 for all invertedbottleneck layers
+    # [se_ratio] is set to 0.25 for all inverted_bottleneck layers
     # [activation] is set to 'relu6' for all applicable layers
     'block_spec_schema': ['block_fn', 'kernel_size', 'strides', 'filters',
                           'activation', 'se_ratio', 'expand_ratio',
@@ -138,9 +140,10 @@ MD_DSP_BLOCK_SPECS = {
 
 MD_EdgeTPU_BLOCK_SPECS = {
     'spec_name': 'MobileDetEdgeTPU',
-    # [expand_ratio] is set to 1. for inverted_bottleneck_no_expansion
+    # [expand_ratio] is set to 1 and [use_residual] is set to false
+    # for inverted_bottleneck_no_expansion
     # [use_depthwise] is set to False for fused_conv
-    # [se_ratio] is set to 0.25 for all invertedbottleneck layers
+    # [se_ratio] is set to 0.25 for all inverted_bottleneck layers
     # [activation] is set to 'relu6' for all applicable layers
     'block_spec_schema': ['block_fn', 'kernel_size', 'strides', 'filters',
                           'activation', 'se_ratio', 'expand_ratio',
@@ -198,9 +201,10 @@ MD_EdgeTPU_BLOCK_SPECS = {
 
 MD_GPU_BLOCK_SPECS = {
     'spec_name': 'MobileDetGPU',
-    # [expand_ratio] is set to 1. for inverted_bottleneck_no_expansion
+    # [expand_ratio] is set to 1 and [use_residual] is set to false
+    # for inverted_bottleneck_no_expansion
     # [use_depthwise] is set to False for fused_conv
-    # [se_ratio] is set to 0.25 for all invertedbottleneck layers
+    # [se_ratio] is set to 0.25 for all inverted_bottleneck layers
     # [activation] is set to 'relu6' for all applicable layers
     'block_spec_schema': ['block_fn', 'kernel_size', 'strides', 'filters',
                           'activation', 'se_ratio', 'expand_ratio',
@@ -212,7 +216,7 @@ MD_GPU_BLOCK_SPECS = {
          None, None, None, None, None, None, False),
         # block 1
         ('tucker', 3, 1, 16, 'relu6',
-         None, None, 0.25, 0.75, None, False, True),
+         None, None, 0.25, 0.25, None, False, True),
         # block 2
         ('invertedbottleneck', 3, 2, 32, 'relu6',
          0.25, 8., None, None, False, False, False),  # fused_conv
