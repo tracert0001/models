@@ -81,7 +81,7 @@ MD_DSP_BLOCK_SPECS = {
     # [expand_ratio] is set to 1 and [use_residual] is set to false
     # for inverted_bottleneck_no_expansion
     # [use_depthwise] is set to False for fused_conv
-    # [se_ratio] is set to 0.25 for all inverted_bottleneck layers
+    # [se_ratio] is set to None for all inverted_bottleneck layers
     # [activation] is set to 'relu6' for all applicable layers
     'block_spec_schema': ['block_fn', 'kernel_size', 'strides', 'filters',
                           'activation', 'se_ratio', 'expand_ratio',
@@ -92,49 +92,49 @@ MD_DSP_BLOCK_SPECS = {
          None, None, None, None, None, None, False),
         # inverted_bottleneck_no_expansion
         ('invertedbottleneck', 3, 1, 24, 'relu6',
-         0.25, 1., None, None, True, False, True),
+         None, 1., None, None, True, False, True),
         ('invertedbottleneck', 3, 2, 32, 'relu6',
-         0.25, 4., None, None, False, False, False),  # fused_conv
+         None, 4., None, None, False, False, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 32, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 32, 'relu6',
-         0.25, 4., None, None, True, True, False),
+         None, 4., None, None, True, True, False),
         ('tucker', 3, 1, 32, 'relu6',
          None, None, 0.25, 0.75, None, True, True),
         ('invertedbottleneck', 3, 2, 64, 'relu6',
-         0.25, 8., None, None, False, False, False),  # fused_conv
+         None, 8., None, None, False, False, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 64, 'relu6',
-         0.25, 4., None, None, True, True, False),
+         None, 4., None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 64, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 64, 'relu6',
-         0.25, 4., None, None, False, True, True),  # fused_conv
+         None, 4., None, None, False, True, True),  # fused_conv
         ('invertedbottleneck', 3, 2, 120, 'relu6',
-         0.25, 8., None, None, False, False, False),  # fused_conv
+         None, 8., None, None, False, False, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 120, 'relu6',
-         0.25, 4., None, None, True, True, False),
+         None, 4., None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 120, 'relu6',
-         0.25, 8, None, None, True, True, False),
+         None, 8, None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 120, 'relu6',
-         0.25, 8., None, None, True, True, False),
+         None, 8., None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 144, 'relu6',
-         0.25, 8., None, None, False, False, False),  # fused_conv
+         None, 8., None, None, False, False, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 144, 'relu6',
-         0.25, 8., None, None, True, True, False),
+         None, 8., None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 144, 'relu6',
-         0.25, 8, None, None, True, True, False),
+         None, 8, None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 144, 'relu6',
-         0.25, 8., None, None, True, True, True),
+         None, 8., None, None, True, True, True),
         ('invertedbottleneck', 3, 2, 160, 'relu6',
-         0.25, 4, None, None, True, False, False),
+         None, 4, None, None, True, False, False),
         ('invertedbottleneck', 3, 1, 160, 'relu6',
-         0.25, 4, None, None, True, True, False),
+         None, 4, None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 160, 'relu6',
-         0.25, 4., None, None, False, False, False),  # fused_conv
+         None, 4., None, None, False, False, False),  # fused_conv
         ('tucker', 3, 1, 160, 'relu6',
          None, None, 0.75, 0.75, None, True, False),
         ('invertedbottleneck', 3, 1, 240, 'relu6',
-         0.25, 8, None, None, True, False, True),
+         None, 8, None, None, True, False, True),
     ]
 }
 
@@ -143,7 +143,7 @@ MD_EdgeTPU_BLOCK_SPECS = {
     # [expand_ratio] is set to 1 and [use_residual] is set to false
     # for inverted_bottleneck_no_expansion
     # [use_depthwise] is set to False for fused_conv
-    # [se_ratio] is set to 0.25 for all inverted_bottleneck layers
+    # [se_ratio] is set to None for all inverted_bottleneck layers
     # [activation] is set to 'relu6' for all applicable layers
     'block_spec_schema': ['block_fn', 'kernel_size', 'strides', 'filters',
                           'activation', 'se_ratio', 'expand_ratio',
@@ -155,47 +155,47 @@ MD_EdgeTPU_BLOCK_SPECS = {
         ('tucker', 3, 1, 16, 'relu6',
          None, None, 0.25, 0.75, None, False, True),
         ('invertedbottleneck', 3, 2, 16, 'relu6',
-         0.25, 8., None, None, False, False, False),  # fused_conv
+         None, 8., None, None, False, False, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 16, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 16, 'relu6',
-         0.25, 8., None, None, False, True, False),  # fused_conv
+         None, 8., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 16, 'relu6',
-         0.25, 4., None, None, False, True, True),  # fused_conv
+         None, 4., None, None, False, True, True),  # fused_conv
         ('invertedbottleneck', 5, 2, 40, 'relu6',
-         0.25, 8., None, None, False, False, False),  # fused_conv
+         None, 8., None, None, False, False, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 40, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 40, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 40, 'relu6',
-         0.25, 4., None, None, False, True, True),  # fused_conv
+         None, 4., None, None, False, True, True),  # fused_conv
         ('invertedbottleneck', 3, 2, 72, 'relu6',
-         0.25, 8, None, None, True, False, False),
+         None, 8, None, None, True, False, False),
         ('invertedbottleneck', 3, 1, 72, 'relu6',
-         0.25, 8, None, None, True, True, False),
+         None, 8, None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 72, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 72, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 5, 1, 96, 'relu6',
-         0.25, 8, None, None, True, False, False),
+         None, 8, None, None, True, False, False),
         ('invertedbottleneck', 5, 1, 96, 'relu6',
-         0.25, 8, None, None, True, True, False),
+         None, 8, None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 96, 'relu6',
-         0.25, 8, None, None, True, True, False),
+         None, 8, None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 96, 'relu6',
-         0.25, 8, None, None, True, True, True),
+         None, 8, None, None, True, True, True),
         ('invertedbottleneck', 5, 2, 120, 'relu6',
-         0.25, 8, None, None, True, False, False),
+         None, 8, None, None, True, False, False),
         ('invertedbottleneck', 3, 1, 120, 'relu6',
-         0.25, 8, None, None, True, True, False),
+         None, 8, None, None, True, True, False),
         ('invertedbottleneck', 5, 1, 120, 'relu6',
-         0.25, 4, None, None, True, True, False),
+         None, 4, None, None, True, True, False),
         ('invertedbottleneck', 3, 1, 120, 'relu6',
-         0.25, 8, None, None, True, True, False),
+         None, 8, None, None, True, True, False),
         ('invertedbottleneck', 5, 1, 384, 'relu6',
-         0.25, 8, None, None, True, False, True),
+         None, 8, None, None, True, False, True),
     ]
 }
 
@@ -204,7 +204,7 @@ MD_GPU_BLOCK_SPECS = {
     # [expand_ratio] is set to 1 and [use_residual] is set to false
     # for inverted_bottleneck_no_expansion
     # [use_depthwise] is set to False for fused_conv
-    # [se_ratio] is set to 0.25 for all inverted_bottleneck layers
+    # [se_ratio] is set to None for all inverted_bottleneck layers
     # [activation] is set to 'relu6' for all applicable layers
     'block_spec_schema': ['block_fn', 'kernel_size', 'strides', 'filters',
                           'activation', 'se_ratio', 'expand_ratio',
@@ -228,43 +228,43 @@ MD_GPU_BLOCK_SPECS = {
          None, None, 0.25, 0.25, None, True, True),
         # block 3
         ('invertedbottleneck', 3, 2, 64, 'relu6',
-         0.25, 8., None, None, False, False, False),  # fused_conv
+         None, 8., None, None, False, False, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 64, 'relu6',
-         0.25, 8., None, None, False, True, False),  # fused_conv
+         None, 8., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 64, 'relu6',
-         0.25, 8., None, None, False, True, False),  # fused_conv
+         None, 8., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 64, 'relu6',
-         0.25, 4., None, None, False, True, True),  # fused_conv
+         None, 4., None, None, False, True, True),  # fused_conv
         # block 4
         ('invertedbottleneck', 3, 2, 128, 'relu6',
-         0.25, 8., None, None, False, False, False),  # fused_conv
+         None, 8., None, None, False, False, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 128, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 128, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 128, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         # block 5
         ('invertedbottleneck', 3, 1, 128, 'relu6',
-         0.25, 8., None, None, False, False, False),  # fused_conv
+         None, 8., None, None, False, False, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 128, 'relu6',
-         0.25, 8., None, None, False, True, False),  # fused_conv
+         None, 8., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 128, 'relu6',
-         0.25, 8., None, None, False, True, False),  # fused_conv
+         None, 8., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 128, 'relu6',
-         0.25, 8., None, None, False, True, True),  # fused_conv
+         None, 8., None, None, False, True, True),  # fused_conv
         # block 6
         ('invertedbottleneck', 3, 2, 128, 'relu6',
-         0.25, 4., None, None, False, False, False),  # fused_conv
+         None, 4., None, None, False, False, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 128, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 128, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         ('invertedbottleneck', 3, 1, 128, 'relu6',
-         0.25, 4., None, None, False, True, False),  # fused_conv
+         None, 4., None, None, False, True, False),  # fused_conv
         # block 7
         ('invertedbottleneck', 3, 1, 384, 'relu6',
-         0.25, 8, None, None, True, False, True),
+         None, 8, None, None, True, False, True),
     ]
 }
 
