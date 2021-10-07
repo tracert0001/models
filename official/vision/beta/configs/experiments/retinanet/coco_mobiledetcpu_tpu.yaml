@@ -1,3 +1,5 @@
+# --experiment_type=retinanet_mobile_coco
+# COCO AP 24.0%
 runtime:
   distribution_strategy: 'tpu'
   mixed_precision_dtype: 'bfloat16'
@@ -23,8 +25,8 @@ task:
       num_convs: 4
       num_filters: 128
       use_separable_conv: true
-    input_size: [256, 256, 3]
-    max_level: 7
+    input_size: [320 320, 3]
+    max_level: 6
     min_level: 3
     norm_activation:
       activation: 'relu6'

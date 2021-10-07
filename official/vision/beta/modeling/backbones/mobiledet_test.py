@@ -95,7 +95,7 @@ class MobileDetTest(parameterized.TestCase, tf.test.TestCase):
     """Test creation of MobileNet family models."""
     tf.keras.backend.set_image_data_format('channels_last')
 
-    mobilenet_layers = {
+    mobiledet_layers = {
         # The number of filters of layers having outputs been collected
         # for filter_size_scale = 1.0
         'MobileDetCPU': [8, 16, 32, 72, 144],
@@ -110,7 +110,7 @@ class MobileDetTest(parameterized.TestCase, tf.test.TestCase):
     inputs = tf.keras.Input(shape=(input_size, input_size, 3), batch_size=1)
     endpoints = network(inputs)
 
-    for idx, num_filter in enumerate(mobilenet_layers[model_id]):
+    for idx, num_filter in enumerate(mobiledet_layers[model_id]):
       self.assertAllEqual(
           [1, input_size / 2 ** (idx+1), input_size / 2 ** (idx+1), num_filter],
           endpoints[str(idx+1)].shape.as_list())
